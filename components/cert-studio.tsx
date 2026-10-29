@@ -16,6 +16,7 @@ import { sanitizeBaseName } from "@/lib/download";
 import { deleteCa, listCas, saveCa, type StoredCa } from "@/lib/ca-store";
 import { describeCaBundle, readPkcs12, splitPemMaterials, type CaBundle } from "@/lib/cert/import";
 import { formatDate } from "@/lib/cert/pem";
+import { CA_PRESETS, PRESET_FAMILY_LABEL, findPreset, groupPresets } from "@/lib/ca-presets";
 import { Button, Card, CardHeader, Field, Segmented, Select, TextInput, Textarea } from "./ui";
 import { ResultPanel } from "./result-panel";
 import { Inspector } from "./inspector";
@@ -76,7 +77,12 @@ export function CertStudio() {
   const [importDragging, setImportDragging] = useState(false);
   const [pendingPkcs12, setPendingPkcs12] = useState<Uint8Array | null>(null);
   const [p12Password, setP12Password] = useState("");
+  const [presetId, setPresetId] = useState("");
+  const [presetBusy, setPresetBusy] = useState(false);
   const importFileRef = useRef<HTMLInputElement>(null);
+
+  const activePreset = useMemo(() => findPreset(presetId), [presetId]);
+  const presetGroups = useMemo(() => groupPresets(), []);
 
   const applyBundle = (bundle: CaBundle) => {
     setImported(bundle);
@@ -105,6 +111,7 @@ export function CertStudio() {
     setImportNote(null);
     setImported(null);
     setPendingPkcs12(null);
+    setPresetId("");
     setImporting(true);
     try {
       const name = file.name.toLowerCase();
@@ -150,6 +157,41 @@ export function CertStudio() {
     }
   };
 
+  const loadPresetCa = async (id: string) => {
+    setPresetId(id);
+    const preset = findPreset(id);
+    if (!preset) return;
+
+    setImportNote(null);
+    setImported(null);
+    setPendingPkcs12(null);
+    setSelectedCaId("");
+    setPresetBusy(true);
+    try {
+      const [certResponse, keyResponse] = await Promise.all([fetch(preset.certUrl), fetch(preset.keyUrl)]);
+      if (!certResponse.ok || !keyResponse.ok) {
+        throw new Error(
+          `预设文件读取失败（证书 HTTP ${certResponse.status}，私钥 HTTP ${keyResponse.status}）`,
+        );
+      }
+      const certPem = await certResponse.text();
+      const keyPem = await keyResponse.text();
+      applyBundle(await describeCaBundle(certPem, keyPem));
+    } catch (cause) {
+      setImportNote({ tone: "err", text: cause instanceof Error ? cause.message : "载入预设 CA 失败" });
+    } finally {
+      setPresetBusy(false);
+    }
+  };
+
+  const clearPresetCa = () => {
+    setPresetId("");
+    setImported(null);
+    setImportNote(null);
+    setCaCertPem("");
+    setCaKeyPem("");
+  };
+
   const saveImportedCa = async () => {
     if (!imported?.certPem || !imported.keyPem || !imported.sha256) return;
     await saveCa({
@@ -181,6 +223,7 @@ export function CertStudio() {
 
   const applySavedCa = (id: string) => {
     setSelectedCaId(id);
+    setPresetId("");
     const ca = savedCas.find((item) => item.id === id);
     if (!ca) return;
     setCaCertPem(ca.certPem);
@@ -192,6 +235,7 @@ export function CertStudio() {
     await deleteCa(selectedCaId);
     setSavedCas((prev) => prev.filter((item) => item.id !== selectedCaId));
     setSelectedCaId("");
+    setPresetId("");
     setCaCertPem("");
     setCaKeyPem("");
   };
@@ -465,6 +509,53 @@ export function CertStudio() {
               <section className="space-y-2 border-t border-zinc-100 pt-4">
                 <div className="flex items-baseline justify-between">
                   <h3 className="text-xs font-medium text-zinc-900">签发用的 CA</h3>
+                  <span className="text-[11px] text-zinc-400">预设 · 本地库 · 文件</span>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex gap-2">
+                    <Select
+                      value={presetId}
+                      disabled={presetBusy}
+                      onChange={(event) => void loadPresetCa(event.target.value)}
+                    >
+                      <option value="">{presetBusy ? "正在载入预设…" : "从预设 CA 载入…"}</option>
+                      {presetGroups.map((group) => (
+                        <optgroup key={group.family} label={PRESET_FAMILY_LABEL[group.family]}>
+                          {group.items.map((item) => (
+                            <option key={item.id} value={item.id}>
+                              {item.label}（{item.usage}）· {item.operator}
+                            </option>
+                          ))}
+                        </optgroup>
+                      ))}
+                    </Select>
+                    {activePreset ? (
+                      <Button variant="ghost" className="shrink-0 px-2" aria-label="清除预设" onClick={clearPresetCa}>
+                        ✕
+                      </Button>
+                    ) : null}
+                  </div>
+
+                  {activePreset ? (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="inline-flex items-center rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] text-zinc-600">
+                        {PRESET_FAMILY_LABEL[activePreset.family]}
+                      </span>
+                      <span className="inline-flex items-center rounded-md bg-zinc-100 px-1.5 py-0.5 font-mono text-[11px] text-zinc-600">
+                        {activePreset.usage === "CS" ? "代码签名" : "服务器证书"}
+                      </span>
+                      <span className="inline-flex items-center rounded-md bg-rose-50 px-1.5 py-0.5 font-mono text-[11px] text-rose-700">
+                        d = {activePreset.scalar} · {activePreset.bits} bit
+                      </span>
+                      <span className="text-[11px] text-zinc-400">上级 {activePreset.issuer}</span>
+                    </div>
+                  ) : (
+                    <p className="text-[11px] leading-relaxed text-zinc-400">
+                      预设来自 {CA_PRESETS.length} 张真实公开证书，其私钥已从公钥反推得到——标量只有 3~8 bit，
+                      因此只能用来演示。
+                    </p>
+                  )}
                 </div>
 
                 <input
