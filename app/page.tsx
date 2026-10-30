@@ -4,7 +4,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-[#fafaf9]">
       <header className="sticky top-0 z-20 border-b border-zinc-200/70 bg-white/85 backdrop-blur">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900 text-white">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
@@ -26,7 +26,7 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-7xl px-6 pb-16 pt-6">
+      <main className="mx-auto max-w-7xl px-4 pb-16 pt-6 sm:px-6">
         <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
           <div>
             <h1 className="text-lg font-medium tracking-tight text-zinc-900">

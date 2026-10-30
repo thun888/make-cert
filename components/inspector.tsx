@@ -161,7 +161,7 @@ export function Inspector() {
       />
 
       <div
-        className={`grid gap-4 px-5 py-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] ${
+        className={`grid gap-4 px-4 py-4 sm:px-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] ${
           dragging ? "rounded-xl bg-zinc-50" : ""
         }`}
         onDragOver={(event) => {

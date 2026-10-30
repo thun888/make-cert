@@ -18,7 +18,7 @@ export function CardHeader({
   aside?: ReactNode;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-zinc-100 px-5 py-4">
+    <div className="flex items-start justify-between gap-4 border-b border-zinc-100 px-4 py-4 sm:px-5">
       <div>
         <h2 className="text-sm font-medium text-zinc-900">{title}</h2>
         {description ? <p className="mt-1 text-xs leading-relaxed text-zinc-500">{description}</p> : null}
@@ -172,12 +172,13 @@ export function CodeBlock({
   };
 
   return (
-    <div className="relative w-full min-w-0 max-w-full">
-      <div className="absolute right-2 top-2 z-10 flex gap-1">
+    <div className="w-full min-w-0 max-w-full">
+      {/* 操作按钮停在内容上方的一行里，不再占用正文宽度，正文可以整行铺满 */}
+      <div className="mb-1.5 flex items-center justify-end gap-1">
         <button
           type="button"
           onClick={copy}
-          className="rounded-md border border-zinc-200 bg-white/95 px-2 py-1 text-[11px] font-medium text-zinc-600 transition hover:bg-zinc-50"
+          className="rounded-md bg-white px-2 py-1 text-[11px] font-medium text-zinc-600 shadow-sm ring-1 ring-zinc-200 transition hover:bg-zinc-50 hover:text-zinc-900"
         >
           {copied ? "已复制" : "复制"}
         </button>
@@ -185,14 +186,14 @@ export function CodeBlock({
           <button
             type="button"
             onClick={onDownload}
-            className="rounded-md border border-zinc-200 bg-white/95 px-2 py-1 text-[11px] font-medium text-zinc-600 transition hover:bg-zinc-50"
+            className="rounded-md bg-white px-2 py-1 text-[11px] font-medium text-zinc-600 shadow-sm ring-1 ring-zinc-200 transition hover:bg-zinc-50 hover:text-zinc-900"
           >
             下载
           </button>
         ) : null}
       </div>
       <pre
-        className={`max-h-[380px] w-full min-w-0 max-w-full overflow-auto rounded-xl border border-zinc-200 bg-zinc-50 p-3 pr-24 font-mono text-[11px] leading-relaxed text-zinc-700 ${
+        className={`max-h-[380px] w-full min-w-0 max-w-full overflow-auto rounded-xl border border-zinc-200 bg-zinc-50 p-3 font-mono text-[11px] leading-relaxed text-zinc-700 ${
           wrap ? "whitespace-pre-wrap break-all lg:whitespace-pre lg:break-normal" : ""
         }`}
       >

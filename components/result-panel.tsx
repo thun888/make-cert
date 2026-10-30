@@ -102,7 +102,7 @@ export function ResultPanel({
         aside={<Badge tone="success">已生成</Badge>}
       />
 
-      <div className="min-w-0 space-y-4 px-5 py-4">
+      <div className="min-w-0 space-y-4 px-4 py-4 sm:px-5">
         <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
           <InfoRow label="主体" value={result.subject} />
           <InfoRow label="密钥" value={result.keyLabel} />

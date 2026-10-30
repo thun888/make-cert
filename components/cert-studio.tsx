@@ -323,7 +323,7 @@ export function CertStudio() {
         <Card className="min-w-0 overflow-hidden">
           <CardHeader title="证书参数" description="填写主体、密钥与有效期。" />
 
-          <div className="space-y-5 px-5 py-4">
+          <div className="space-y-5 px-4 py-4 sm:px-5">
             <div className="space-y-2">
               <Segmented
                 value={mode}
