@@ -44,7 +44,7 @@ export function ResultPanel({
 
   if (!result) {
     return (
-      <Card className="overflow-hidden">
+      <Card className="min-w-0 overflow-hidden">
         <CardHeader title="输出" description="生成的证书、私钥与部署配置会出现在这里。" />
         <div className="flex flex-col items-center justify-center gap-3 px-6 py-24 text-center">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl border border-dashed border-zinc-300 text-zinc-300">
@@ -95,15 +95,15 @@ export function ResultPanel({
   };
 
   return (
-    <Card className="overflow-hidden">
+    <Card className="min-w-0 overflow-hidden">
       <CardHeader
         title="输出"
         description="时间按本地时区显示，下载前请确认主体与 SAN。"
         aside={<Badge tone="success">已生成</Badge>}
       />
 
-      <div className="space-y-4 px-5 py-4">
-        <div className="grid grid-cols-2 gap-x-4 gap-y-3">
+      <div className="min-w-0 space-y-4 px-5 py-4">
+        <div className="grid grid-cols-1 gap-x-4 gap-y-3 sm:grid-cols-2">
           <InfoRow label="主体" value={result.subject} />
           <InfoRow label="密钥" value={result.keyLabel} />
           <InfoRow label="生效" value={formatDate(result.notBefore)} />
@@ -133,6 +133,7 @@ export function ResultPanel({
 
         {tab === "cert" ? (
           <CodeBlock
+            wrap
             code={result.certPem}
             filename={`${baseName}.crt`}
             onDownload={() => download(`${baseName}.crt`, result.certPem, "application/x-pem-file")}
@@ -141,6 +142,7 @@ export function ResultPanel({
 
         {tab === "key" ? (
           <CodeBlock
+            wrap
             code={result.keyPem}
             filename={`${baseName}.key`}
             onDownload={() => download(`${baseName}.key`, result.keyPem, "application/x-pem-file")}
@@ -150,6 +152,7 @@ export function ResultPanel({
         {tab === "chain" ? (
           result.chainPem ? (
             <CodeBlock
+              wrap
               code={result.chainPem}
               filename={`${baseName}.chain.pem`}
               onDownload={() => download(`${baseName}.chain.pem`, result.chainPem, "application/x-pem-file")}
@@ -164,6 +167,7 @@ export function ResultPanel({
         {tab === "csr" ? (
           result.csrPem ? (
             <CodeBlock
+              wrap
               code={result.csrPem}
               filename={`${baseName}.csr`}
               onDownload={() => download(`${baseName}.csr`, result.csrPem as string, "application/pkcs10")}
@@ -228,7 +232,7 @@ export function ResultPanel({
               </p>
             </div>
           </div>
-          <div className="mt-2 flex items-end gap-2">
+          <div className="mt-2 flex flex-wrap items-end gap-2">
             <Field label="口令" className="w-40">
               <TextInput value={password} onChange={(event) => setPassword(event.target.value)} />
             </Field>

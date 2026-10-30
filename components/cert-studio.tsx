@@ -319,8 +319,8 @@ export function CertStudio() {
 
   return (
     <div className="space-y-6">
-      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,540px)_minmax(0,1fr)]">
-        <Card className="overflow-hidden">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-[minmax(0,540px)_minmax(0,1fr)]">
+        <Card className="min-w-0 overflow-hidden">
           <CardHeader title="证书参数" description="填写主体、密钥与有效期。" />
 
           <div className="space-y-5 px-5 py-4">
@@ -737,7 +737,7 @@ export function CertStudio() {
           </div>
         </Card>
 
-        <div className="lg:sticky lg:top-20">
+        <div className="min-w-0 lg:sticky lg:top-20">
           <ResultPanel result={result} baseName={baseName} onUseAsCa={useAsCa} />
         </div>
       </div>

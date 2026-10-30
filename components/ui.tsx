@@ -155,10 +155,13 @@ export function CodeBlock({
   code,
   onDownload,
   filename,
+  wrap = false,
 }: {
   code: string;
   onDownload?: () => void;
   filename?: string;
+  /** 长行（如 PEM）在窄屏上换行显示，避免把页面撑宽 */
+  wrap?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -169,7 +172,7 @@ export function CodeBlock({
   };
 
   return (
-    <div className="relative">
+    <div className="relative w-full min-w-0 max-w-full">
       <div className="absolute right-2 top-2 z-10 flex gap-1">
         <button
           type="button"
@@ -188,7 +191,11 @@ export function CodeBlock({
           </button>
         ) : null}
       </div>
-      <pre className="max-h-[380px] overflow-auto rounded-xl border border-zinc-200 bg-zinc-50 p-3 pr-24 font-mono text-[11px] leading-relaxed text-zinc-700">
+      <pre
+        className={`max-h-[380px] w-full min-w-0 max-w-full overflow-auto rounded-xl border border-zinc-200 bg-zinc-50 p-3 pr-24 font-mono text-[11px] leading-relaxed text-zinc-700 ${
+          wrap ? "whitespace-pre-wrap break-all lg:whitespace-pre lg:break-normal" : ""
+        }`}
+      >
         <code>{code}</code>
       </pre>
       {filename ? (
